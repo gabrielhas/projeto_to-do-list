@@ -1,24 +1,10 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import {
-  List,
-  ListCheck,
-  Pencil,
-  Plus,
-  Sigma,
-  SquareArrowOutDownLeft,
-  SquareCheck,
-  Trash2,
-} from "lucide-react";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,13 +16,20 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import EditTask from "@/components/editTask";
+import DeleteTask from "@/components/deleteTask";
+
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  List,
+  ListCheck,
+  Plus,
+  Sigma,
+  SquareArrowOutDownLeft,
+  SquareCheck,
+  Trash2,
+} from "lucide-react";
+
+import { getTasks } from "@/actions/get-tasks-from-db";
 
 export default function Home() {
   return (
@@ -44,7 +37,7 @@ export default function Home() {
       <Card className="w-lg">
         <CardHeader className="flex gap-2">
           <Input placeholder="Digite sua tarefa" />
-          <Button variant="default" className="cursor-pointer">
+          <Button variant="default" className="cursor-pointer font-serif">
             <Plus />
             Adicionar
           </Button>
@@ -53,15 +46,24 @@ export default function Home() {
         <CardContent>
           <Separator className="mb-3" />
           <div className="flex gap-1.5">
-            <Badge variant="default" className="cursor-pointer">
+            <Badge
+              variant="default"
+              className="cursor-pointer font-serif h-5.5"
+            >
               <List />
               Todas
             </Badge>
-            <Badge variant="secondary" className="cursor-pointer">
+            <Badge
+              variant="secondary"
+              className="cursor-pointer font-serif h-5.5"
+            >
               <SquareArrowOutDownLeft />
               Não Finalizadas
             </Badge>
-            <Badge variant="secondary" className="cursor-pointer">
+            <Badge
+              variant="secondary"
+              className="cursor-pointer font-serif h-5.5"
+            >
               <SquareCheck />
               Concluídas
             </Badge>
@@ -73,41 +75,8 @@ export default function Home() {
               <p className="flex-1 px-2">Tarefa 1</p>
 
               <div className="flex items-center gap-2">
-                <Dialog>
-                  <DialogTrigger>
-                    <Pencil className="cursor-pointer" size={16} />
-                  </DialogTrigger>
-
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Editar Tarefa</DialogTitle>
-                    </DialogHeader>
-                    <div className="flex gap-2">
-                      <Input placeholder="Escreva a tarefa" />
-                      <Button className="cursor-pointer">Editar</Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-
-                <Dialog>
-                  <DialogTrigger>
-                    <Trash2 className="cursor-pointer" size={16} />
-                  </DialogTrigger>
-
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Deseja excluir essa tarefa?</DialogTitle>
-                    </DialogHeader>
-                    <div className="flex justify-center gap-2">
-                      <Button variant="default" className="cursor-pointer">
-                        Sim
-                      </Button>
-                      <Button variant="outline" className="cursor-pointer">
-                        Não
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <EditTask />
+                <DeleteTask />
               </div>
             </div>
           </div>
@@ -122,7 +91,7 @@ export default function Home() {
               <AlertDialogTrigger>
                 <Button
                   variant="outline"
-                  className="cursor-pointer text-xs h-7"
+                  className="cursor-pointer h-7 text-xs"
                 >
                   <Trash2 />
                   Limpar Tarefas Concluídas
