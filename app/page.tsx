@@ -14,10 +14,29 @@ import {
   ListCheck,
   Pencil,
   Plus,
+  Sigma,
   SquareArrowOutDownLeft,
   SquareCheck,
   Trash2,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function Home() {
   return (
@@ -54,8 +73,41 @@ export default function Home() {
               <p className="flex-1 px-2">Tarefa 1</p>
 
               <div className="flex items-center gap-2">
-                <Pencil className="cursor-pointer" size={16} />
-                <Trash2 className="cursor-pointer" size={16} />
+                <Dialog>
+                  <DialogTrigger>
+                    <Pencil className="cursor-pointer" size={16} />
+                  </DialogTrigger>
+
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Editar Tarefa</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex gap-2">
+                      <Input placeholder="Escreva a tarefa" />
+                      <Button className="cursor-pointer">Editar</Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                <Dialog>
+                  <DialogTrigger>
+                    <Trash2 className="cursor-pointer" size={16} />
+                  </DialogTrigger>
+
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Deseja excluir essa tarefa?</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex justify-center gap-2">
+                      <Button variant="default" className="cursor-pointer">
+                        Sim
+                      </Button>
+                      <Button variant="outline" className="cursor-pointer">
+                        Não
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
           </div>
@@ -65,10 +117,47 @@ export default function Home() {
               <ListCheck size={18} />
               <p className="text-xs">Tarefas concluídas (3/3)</p>
             </div>
-            <Button variant="outline" className="cursor-pointer text-xs h-7">
-              <Trash2 />
-              Limpar Tarefas Concluídas
-            </Button>
+
+            <AlertDialog>
+              <AlertDialogTrigger>
+                <Button
+                  variant="outline"
+                  className="cursor-pointer text-xs h-7"
+                >
+                  <Trash2 />
+                  Limpar Tarefas Concluídas
+                </Button>
+              </AlertDialogTrigger>
+
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    Tem certeza que deseja excluir X itens?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Essa ação não pode ser desfeita. Isso irá excluir
+                    permanentemente os itens selecionados.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction>Excluir</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+
+          <div className="h-2 w-full bg-gray-100 mt-4 rounded-md">
+            <div
+              className="h-full bg-red-600 rounded-md"
+              style={{ width: "50%" }}
+            ></div>
+          </div>
+
+          <div className="flex justify-end items-center mt-4 gap-1">
+            <Sigma size={18} />
+            <p className="text-xs">Total de tarefas: 3</p>
           </div>
         </CardContent>
       </Card>
