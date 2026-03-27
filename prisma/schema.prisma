@@ -1,6 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../lib/generated/prisma"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Tasks {
-  id Int @id @default(autoincrement())
   task String
   done Boolean
+  id   Int     @id @default(autoincrement())
 }

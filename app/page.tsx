@@ -30,16 +30,37 @@ import {
 } from "lucide-react";
 
 import { getTasks } from "@/actions/get-tasks-from-db";
+import { useEffect, useState } from "react";
+import { Tasks } from "@/src/generated/prisma/client";
 
 export default function Home() {
+  const [tastList, setTaskList] = useState<Tasks[]>([]);
+  //const [task, setTask] = useState<string>("");
+
+  const handledGetTasks = async () => {
+    const tasks = await getTasks();
+
+    if (!tasks) return;
+
+    setTaskList(tasks);
+  };
+
+  useEffect(() => {
+    handledGetTasks();
+  }, []);
+
   return (
     <main className="flex items-center justify-center h-screen bg-gray-200">
       <Card className="w-lg">
-        <CardHeader className="flex gap-2">
+        <CardHeader className="flex gap-2 items-center">
           <Input placeholder="Digite sua tarefa" />
-          <Button variant="default" className="cursor-pointer font-serif">
-            <Plus />
+          <Button
+            variant="default"
+            size="sm"
+            className="cursor-pointer font-serif"
+          >
             Adicionar
+            <Plus />
           </Button>
         </CardHeader>
 
@@ -70,15 +91,20 @@ export default function Home() {
           </div>
 
           <div className="mt-3 border-b">
-            <div className="flex justify-between items-center h-14 border-t">
-              <div className="w-1 h-full bg-green-400"></div>
-              <p className="flex-1 px-2">Tarefa 1</p>
+            {tastList.map((task) => (
+              <div
+                className="flex justify-between items-center h-14 border-t"
+                key={task.id}
+              >
+                <div className="w-1 h-full bg-green-400"></div>
+                <p className="flex-1 px-2">{task.task}</p>
 
-              <div className="flex items-center gap-2">
-                <EditTask />
-                <DeleteTask />
+                <div className="flex items-center gap-2">
+                  <EditTask />
+                  <DeleteTask />
+                </div>
               </div>
-            </div>
+            ))}
           </div>
 
           <div className="flex justify-between mt-4">
@@ -88,15 +114,17 @@ export default function Home() {
             </div>
 
             <AlertDialog>
-              <AlertDialogTrigger>
-                <Button
-                  variant="outline"
-                  className="cursor-pointer h-7 text-xs"
-                >
-                  <Trash2 />
-                  Limpar Tarefas Concluídas
-                </Button>
-              </AlertDialogTrigger>
+              <AlertDialogTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    className="cursor-pointer h-7 text-xs"
+                  >
+                    <Trash2 />
+                    Limpar Tarefas Concluídas
+                  </Button>
+                }
+              />
 
               <AlertDialogContent>
                 <AlertDialogHeader>

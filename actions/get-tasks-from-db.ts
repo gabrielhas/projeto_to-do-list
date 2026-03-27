@@ -6,6 +6,5 @@ export const getTasks = async () => {
 
   if (!tasks) return;
 
-  console.log(tasks);
   return tasks;
 };
