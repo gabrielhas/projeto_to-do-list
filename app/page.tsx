@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
 import {
@@ -19,15 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import EditTask from "@/components/editTask";
 
-import {
-  List,
-  ListCheck,
-  Plus,
-  Sigma,
-  SquareArrowOutDownLeft,
-  SquareCheck,
-  Trash2,
-} from "lucide-react";
+import { ListCheck, LoaderCircle, Plus, Sigma, Trash2 } from "lucide-react";
 
 import { getTasks } from "@/actions/get-tasks-from-db";
 import { useEffect, useState } from "react";
@@ -43,10 +34,15 @@ import {
 } from "@/components/ui/dialog";
 import { deleteTask } from "@/actions/delete-task-from-db";
 import { updateTaskStatus } from "@/actions/toggle-done";
+import { Filter, FilterType } from "@/components/filter";
+import { deleteCompletedTasks } from "@/actions/clear-completed-tasks";
 
 export default function Home() {
   const [taskList, setTaskList] = useState<Tasks[]>([]);
   const [task, setTask] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [currentFilter, setCurrentFilter] = useState<FilterType>("all");
+  const [filteredTasks, setFilteredTasks] = useState<Tasks[]>([]);
 
   const handledGetTasks = async () => {
     try {
@@ -60,10 +56,12 @@ export default function Home() {
   };
 
   const handleAddTask = async () => {
+    setLoading(true);
     if (!task || task.trim().length === 0) {
       toast.error("Digite uma tarefa", {
         position: "top-center",
       });
+      setLoading(false);
       return;
     }
 
@@ -78,6 +76,7 @@ export default function Home() {
         position: "top-center",
       });
       await handledGetTasks();
+      setLoading(false);
     } catch (error) {
       throw error;
     }
@@ -131,9 +130,39 @@ export default function Home() {
     }
   };
 
+  const clearCompletedTasks = async () => {
+    const deletedTasks = await deleteCompletedTasks();
+
+    if (!deletedTasks) {
+      toast.error("Não existem tarefas concluídas para serem excluídas.", {
+        position: "top-center",
+      });
+      return;
+    }
+
+    toast.info("Tarefas concluídas excluídas com sucesso!", {
+      position: "top-center",
+    });
+    await handledGetTasks();
+  };
+
   useEffect(() => {
     handledGetTasks();
   }, []);
+
+  useEffect(() => {
+    switch (currentFilter) {
+      case "all":
+        setFilteredTasks(taskList);
+        break;
+      case "pending":
+        setFilteredTasks(taskList.filter((task) => !task.done));
+        break;
+      case "done":
+        setFilteredTasks(taskList.filter((task) => task.done));
+        break;
+    }
+  }, [currentFilter, taskList]);
 
   return (
     <main className="flex items-center justify-center h-screen bg-gray-200">
@@ -143,6 +172,7 @@ export default function Home() {
             placeholder="Digite sua tarefa"
             value={task}
             onChange={(e) => setTask(e.target.value)}
+            className="h-7"
           />
           <Button
             variant="default"
@@ -150,39 +180,25 @@ export default function Home() {
             className="cursor-pointer font-serif"
             onClick={handleAddTask}
           >
-            Adicionar
-            <Plus />
+            {loading ? <LoaderCircle className="animate-spin" /> : <Plus />}
+            Cadastrar
           </Button>
         </CardHeader>
 
         <CardContent>
           <Separator className="mb-3" />
-          <div className="flex gap-1.5">
-            <Badge
-              variant="default"
-              className="cursor-pointer font-serif h-5.5"
-            >
-              <List />
-              Todas
-            </Badge>
-            <Badge
-              variant="secondary"
-              className="cursor-pointer font-serif h-5.5"
-            >
-              <SquareArrowOutDownLeft />
-              Não Finalizadas
-            </Badge>
-            <Badge
-              variant="secondary"
-              className="cursor-pointer font-serif h-5.5"
-            >
-              <SquareCheck />
-              Concluídas
-            </Badge>
-          </div>
+
+          <Filter
+            currentFilter={currentFilter}
+            setCurrentFilter={setCurrentFilter}
+          />
 
           <div className="mt-3 border-b">
-            {taskList.map((task) => (
+            {taskList.length === 0 && (
+              <p className="text-center text-sm">Nenhuma tarefa encontrada</p>
+            )}
+
+            {filteredTasks.map((task) => (
               <div
                 className="flex justify-between items-center h-14 border-t"
                 key={task.id}
@@ -240,7 +256,10 @@ export default function Home() {
           <div className="flex justify-between mt-4">
             <div className="flex items-center gap-2">
               <ListCheck size={18} />
-              <p className="text-xs">Tarefas concluídas (3/3)</p>
+              <p className="text-xs">
+                Tarefas concluídas (
+                {taskList.filter((task) => task.done).length}/{taskList.length})
+              </p>
             </div>
 
             <AlertDialog>
@@ -259,17 +278,20 @@ export default function Home() {
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>
-                    Tem certeza que deseja excluir X itens?
+                    Tem certeza que deseja excluir as tarefas concluídas?
                   </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Essa ação não pode ser desfeita. Isso irá excluir
-                    permanentemente os itens selecionados.
-                  </AlertDialogDescription>
                 </AlertDialogHeader>
 
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction>Excluir</AlertDialogAction>
+                  <AlertDialogAction
+                    className="cursor-pointer"
+                    onClick={clearCompletedTasks}
+                  >
+                    Excluir
+                  </AlertDialogAction>
+                  <AlertDialogCancel className="cursor-pointer">
+                    Cancelar
+                  </AlertDialogCancel>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -278,13 +300,15 @@ export default function Home() {
           <div className="h-2 w-full bg-gray-100 mt-4 rounded-md">
             <div
               className="h-full bg-red-600 rounded-md"
-              style={{ width: "50%" }}
+              style={{
+                width: `${(taskList.filter((task) => task.done).length / taskList.length) * 100}%`,
+              }}
             ></div>
           </div>
 
           <div className="flex justify-end items-center mt-4 gap-1">
             <Sigma size={18} />
-            <p className="text-xs">Total de tarefas: 3</p>
+            <p className="text-xs">Total de tarefas: {taskList.length}</p>
           </div>
         </CardContent>
       </Card>
