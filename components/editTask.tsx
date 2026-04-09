@@ -45,9 +45,13 @@ export default function EditTask({ task, handledGetTasks }: TaskProps) {
 
   return (
     <Dialog>
-      <DialogTrigger>
-        <Pencil className="cursor-pointer" size={16} />
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          <Button variant="ghost" size="icon" className="cursor-pointer">
+            <Pencil size={16} />
+          </Button>
+        }
+      />
 
       <DialogContent>
         <DialogHeader>
@@ -59,11 +63,13 @@ export default function EditTask({ task, handledGetTasks }: TaskProps) {
             value={editedTask}
             onChange={(e) => setEditedTask(e.target.value)}
           />
-          <DialogClose>
-            <Button className="cursor-pointer" onClick={handleEditTask}>
-              Editar
-            </Button>
-          </DialogClose>
+          <DialogClose
+            render={
+              <Button className="cursor-pointer" onClick={handleEditTask}>
+                Editar
+              </Button>
+            }
+          />
         </div>
       </DialogContent>
     </Dialog>

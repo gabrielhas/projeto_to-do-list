@@ -41,7 +41,13 @@ export default function Home() {
   const [task, setTask] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [currentFilter, setCurrentFilter] = useState<FilterType>("all");
-  const [filteredTasks, setFilteredTasks] = useState<Tasks[]>([]);
+
+  const filteredTasks = taskList.filter((task) => {
+    if (currentFilter === "all") return true;
+    if (currentFilter === "pending") return !task.done;
+    if (currentFilter === "done") return task.done;
+    return true;
+  });
 
   const handledGetTasks = async () => {
     try {
@@ -146,22 +152,22 @@ export default function Home() {
   };
 
   useEffect(() => {
-    handledGetTasks();
+    let ignore = false;
+
+    async function loadTasks() {
+      const tasks = await getTasks();
+      if (!ignore && tasks) {
+        setTaskList(tasks);
+      }
+    }
+
+    loadTasks();
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
-  useEffect(() => {
-    switch (currentFilter) {
-      case "all":
-        setFilteredTasks(taskList);
-        break;
-      case "pending":
-        setFilteredTasks(taskList.filter((task) => !task.done));
-        break;
-      case "done":
-        setFilteredTasks(taskList.filter((task) => task.done));
-        break;
-    }
-  }, [currentFilter, taskList]);
 
   return (
     <main className="flex items-center justify-center h-screen bg-gray-200">
@@ -216,9 +222,13 @@ export default function Home() {
                   <EditTask task={task} handledGetTasks={handledGetTasks} />
 
                   <Dialog>
-                    <DialogTrigger>
-                      <Trash2 className="cursor-pointer" size={16} />
-                    </DialogTrigger>
+                    <DialogTrigger
+                      render={
+                        <Button variant="ghost" size="icon" className="cursor-pointer">
+                          <Trash2 size={16} />
+                        </Button>
+                      }
+                    />
 
                     <DialogContent className="w-65">
                       <DialogHeader>
@@ -300,7 +310,7 @@ export default function Home() {
             <div
               className="h-full bg-red-600 rounded-md"
               style={{
-                width: `${(taskList.filter((task) => task.done).length / taskList.length) * 100}%`,
+                width: `${taskList.length > 0 ? (taskList.filter((task) => task.done).length / taskList.length) * 100 : 0}%`,
               }}
             ></div>
           </div>
