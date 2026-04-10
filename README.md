@@ -7,8 +7,6 @@ O projeto permite ao usuário organizar suas atividades de forma simples e efici
 ---
 
 ## 🚀 Demonstração
-🔗 Aplicação online: https://projeto-to-do-list-lovat.vercel.app/
-
 📂 Repositório: https://github.com/gabrielhas/projeto_to-do-list
 
 ---
